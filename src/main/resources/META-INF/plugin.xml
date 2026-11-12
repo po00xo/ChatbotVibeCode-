@@ -1,0 +1,73 @@
+<idea-plugin>
+    <id>chatbot-helper</id>
+    <name>Chatbot Vibe Code+</name>
+    <vendor>po00xo</vendor>
+
+    <description>
+        <![CDATA[
+        <h2>Give your AI the context it's missing</h2>
+        <p>AI assistants often suggest code that won't compile because they guess at
+        symbols that don't exist in your project. Chatbot Vibe Code+ scans your source
+        for everything that could legitimately be referenced at the caret and puts it
+        on the clipboard, ready to paste into a chat.</p>
+        <h3>Usage:</h3>
+        <ol>
+        <li>Put the caret on a symbol that won't resolve</li>
+        <li>Press <b>Ctrl+Alt+Q</b>, or right-click and pick the action</li>
+        <li>The tool window on the right shows exactly what got copied</li>
+        </ol>
+        ]]>
+    </description>
+
+    <!-- Platform-only plugin: no language / IDE-specific APIs used. -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!--
+            NOTE: notificationGroup id intentionally left as "Chatbot Helper".
+            Changing it would break any NotificationGroupManager lookups
+            that reference this id from code.
+        -->
+        <notificationGroup
+                id="Chatbot Helper"
+                displayType="BALLOON"
+                isLogByDefault="false"/>
+
+        <postStartupActivity
+                implementation="org.po00xo.chatbothelper.ClassOverview"/>
+
+        <!--
+            factoryClass MUST be the fully-qualified *class* name.
+            Do not append ".kt" (or any other file extension) here —
+            the platform instantiates the class by reflection, and a
+            trailing ".kt" makes it look for a class literally named
+            "...ReferenceFinderToolWindowFactory.kt", which does not exist.
+        -->
+        <toolWindow
+                id="Chatbot Vibe Code+"
+                anchor="right"
+                icon="AllIcons.Toolwindows.ToolWindowMessages"
+                factoryClass="org.po00xo.chatbothelper.toolwindow.ReferenceFinderToolWindowFactory"/>
+    </extensions>
+
+    <actions>
+        <!--
+            Action id intentionally left unchanged. Changing it would break
+            keyboard shortcut registration, <add-to-group> references, and any
+            ActionManager.getAction("chatbot-helper.CopyContext") lookups.
+        -->
+        <action
+                id="chatbot-helper.CopyContext"
+                class="org.po00xo.chatbothelper.CopyAIContext"
+                text="Copy Context for Chatbot Vibe Code+"
+                description="Copy available references for the symbol under the caret (Chatbot Vibe Code+)"
+                icon="AllIcons.Actions.IntentionBulb">
+
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="MainToolBar"     anchor="last"/>
+            <add-to-group group-id="NavBarToolBar"   anchor="last"/>
+
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt Q"/>
+        </action>
+    </actions>
+</idea-plugin>
